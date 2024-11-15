@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shareable Resume Builder</title>
+    <style>
+        /* Core styles */
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --background-color: #f3f4f6;
+            --text-color: #1f2937;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header styles */
+        .header {
+            background-color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Resume styles */
+        .resume-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .resume-section {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .resume-section:hover {
+            background-color: #f8fafc;
+        }
+
+        .editable {
+            outline: none;
+            padding: 0.5rem;
+            border-radius: 4px;
+            min-height: 1.5rem;
+        }
+
+        .editable:focus {
+            background-color: #f0f9ff;
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+
+        /* Share modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        /* Button styles */
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Share options */
+        .share-options {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .share-link {
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        /* Username input */
+        .username-container {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .username-input {
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            margin-right: 1rem;
+        }
+    </style>
+</head>
+<body >
+    <div class="header">
+        <div class="container">
+            <div class="nav">
+                <h1>Resume Builder</h1>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="shareResume()">Share Resume</button>
+                    <button class="btn btn-primary" onclick="downloadPDF()">Download PDF</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="username-container" id="usernameSection">
+            <input type="text" class="username-input" id="username" placeholder="Enter your username">
+            <button class="btn btn-primary" onclick="setUsername()">Set Username</button>
+        </div>
+
+        <div class="resume-container">
+            <div class="resume-section">
+                <h2 class="editable" contenteditable="true">Your Name</h2>
+                <p class="editable" contenteditable="true">Email: your.email@example.com</p>
+                <p class="editable" contenteditable="true">Phone: (123) 456-7890</p>
+            </div>
+
+            <div class="resume-section">
+                <h3>Professional Summary</h3>
+                <div class="editable" contenteditable="true">
+                    A brief professional summary of your career and goals.
+                </div>
+            </div>
+
+            <div class="resume-section">
+                <h3>Experience</h3>
+                <div class="editable" contenteditable="true">
+                    <p><strong>Job Title</strong> | Company Name</p>
+                    <p>Date - Present</p>
+                    <ul>
+                        <li>Key achievement or responsibility</li>
+                        <li>Key achievement or responsibility</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="resume-section">
+                <h3>Education</h3>
+                <div class="editable" contenteditable="true">
+                    <p><strong>Degree Name</strong> | University Name</p>
+                    <p>Graduation Year</p>
+                    <p>Additional details (GPA, honors, etc.)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div class="modal" id="shareModal">
+        <div class="modal-content">
+            <h2>Share Your Resume</h2>
+            <div class="share-options">
+                <p>Your unique resume URL:</p>
+                <input type="text" class="share-link" id="shareLink" readonly>
+                <button class="btn btn-primary" onclick="copyShareLink()">Copy Link</button>
+            </div>
+            <button class="btn" onclick="closeShareModal()">Close</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        let username = '';
+        
+        // Initialize the page
+        window.onload = function() {
+            // Check if we're viewing a shared resume
+            const urlParams = new URLSearchParams(window.location.search);
+            const sharedUsername = urlParams.get('user');
+            
+            if (sharedUsername) {
+                username = sharedUsername;
+                document.getElementById('usernameSection').style.display = 'none';
+                loadResume(sharedUsername);
+            } else {
+                // Check for stored username
+                const storedUsername = localStorage.getItem('resumeUsername');
+                if (storedUsername) {
+                    username = storedUsername;
+                    document.getElementById('username').value = username;
+                    loadResume(username);
+                }
+            }
+        };
+
+        function setUsername() {
+            const usernameInput = document.getElementById('username');
+            username = usernameInput.value.toLowerCase().replace(/[^a-z0-9]/g, '');
+            
+            if (username) {
+                localStorage.setItem('resumeUsername', username);
+                document.getElementById('usernameSection').style.display = 'none';
+                saveResume();
+            }
+        }
+
+        function saveResume() {
+            if (!username) return;
+            
+            const resumeContent = document.querySelector('.resume-container').innerHTML;
+            localStorage.setItem(`resume_${username}`, resumeContent);
+        }
+
+        function loadResume(loadUsername) {
+            const savedResume = localStorage.getItem(`resume_${loadUsername}`);
+            if (savedResume) {
+                document.querySelector('.resume-container').innerHTML = savedResume;
+            }
+        }
+
+        // Auto-save on edit
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('editable')) {
+                saveResume();
+            }
+        });
+
+        function shareResume() {
+            if (!username) {
+                alert('Please set a username first');
+                return;
+            }
+
+            const modal = document.getElementById('shareModal');
+            const shareLink = document.getElementById('shareLink');
+            const shareUrl = `${window.location.origin}${window.location.pathname}?user=${username}`;
+            
+            shareLink.value = shareUrl;
+            modal.style.display = 'flex';
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').style.display = 'none';
+        }
+
+        function copyShareLink() {
+            const shareLink = document.getElementById('shareLink');
+            shareLink.select();
+            document.execCommand('copy');
+            alert('Link copied to clipboard!');
+        }
+
+        async function downloadPDF() {
+            const element = document.querySelector('.resume-container');
+            const opt = {
+                margin: 1,
+                filename: `${username || 'resume'}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            try {
+                await html2pdf().set(opt).from(element).save();
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                alert('Error generating PDF. Please try again.');
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('shareModal');
+            if (event.target === modal) {
+                closeShareModal();
+            }
+        }
+    </script>
+</body>
+</html>
